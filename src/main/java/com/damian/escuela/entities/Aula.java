@@ -1,6 +1,5 @@
 package com.damian.escuela.entities;
 
-import com.damian.escuela.exceptions.DatoInvalidoException;
 import com.damian.escuela.utils.StringCustomUtils;
 import com.damian.escuela.utils.ValoresNumericosUtils;
 import jakarta.persistence.*;
@@ -40,18 +39,6 @@ public class Aula {
 
         ValoresNumericosUtils.validarEnteroPositivo(capacidad,
                 "La capacidad es requerida y dede ser positiva");
-    }
-
-    public void asignarGrupo(Grupo grupo){
-        if (grupo == null)
-            throw new DatoInvalidoException("El grupo es requerido");
-
-        grupo.asignarAula(this);
-        this.grupos.add(grupo);
-    }
-
-    public void quitarGrupo(Grupo grupo){
-        this.grupos.remove(grupo);
     }
 
     public void actualizar(String nombre, Integer capacidad){

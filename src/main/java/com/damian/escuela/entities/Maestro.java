@@ -1,6 +1,5 @@
 package com.damian.escuela.entities;
 
-import com.damian.escuela.exceptions.DatoInvalidoException;
 import com.damian.escuela.utils.StringCustomUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -57,24 +56,6 @@ public class Maestro {
 
         StringCustomUtils.validarTamanio(telefono, 10, 10,
                 "El telefono es requerido y debe tener exactamente 10 caracteres");
-    }
-
-    public boolean cambioEnDatos(String nombre, String apellidoPaterno, String apellidoMaterno, String email, String telefono){
-        validarDatos(nombre, apellidoPaterno, apellidoMaterno, email, telefono);
-
-        return !this.nombre.equals(nombre.trim()) ||
-                !this.apellidoPaterno.equals(apellidoPaterno.trim()) ||
-                !this.apellidoMaterno.equals(apellidoMaterno.trim()) ||
-                !this.email.equals(email.trim().toLowerCase()) ||
-                !this.telefono.equals(telefono.trim());
-    }
-
-    public void asignarGrupo(Grupo grupo){
-        if (grupo == null)
-            throw new DatoInvalidoException("El grupo es requerido");
-
-        grupo.asignarMaestro(this);
-        this.grupos.add(grupo);
     }
 
     public void actualizar(String nombre, String apellidoPaterno, String apellidoMaterno, String email, String telefono){
