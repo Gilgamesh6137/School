@@ -30,13 +30,12 @@ public class DateCustomUtils {
         }
     }
 
-    public static void validarHoraInicioFin(String horaInicio, String horaFin, String mensaje) {
+    public static void compararHoras(String horaInicio, String horaFin, String mensaje) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime inicio = LocalTime.parse(horaInicio, formatter);
-        LocalTime fin = LocalTime.parse(horaFin, formatter);
+        LocalTime timeInicio = LocalTime.parse(horaInicio, formatter);
+        LocalTime timeFin = LocalTime.parse(horaFin, formatter);
 
-        if (!inicio.isBefore(fin)) {
+        if (!timeInicio.isBefore(timeFin))
             throw new DatoInvalidoException(mensaje);
-        }
     }
 }

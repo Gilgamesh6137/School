@@ -41,7 +41,7 @@ public class MaestroServiceImpl implements MaestroService{
 
     @Override
     public MaestroResponse registrar(MaestroRequest request) {
-        validarEmailYTelefonoUnico(request);
+        validarDatosUnicos(request);
         log.info("Registrando un nuevo maestro");
 
         Maestro maestro = maestroMapper.requestAEntidad(request);
@@ -53,7 +53,7 @@ public class MaestroServiceImpl implements MaestroService{
 
     @Override
     public MaestroResponse actualizar(MaestroRequest request, Long id) {
-        validarCambiosEmailYTelefonoUnico(request, id);
+        validarCambiosDatosUnicos(request, id);
         Maestro maestro = obtenerMaestro(id);
         log.info("Actualizando maestro con ID {}", id);
 
@@ -87,7 +87,7 @@ public class MaestroServiceImpl implements MaestroService{
         return ServiceUtils.obtenerEntidadException(maestroRepository, id, Maestro.class);
     }
 
-    private void validarEmailYTelefonoUnico(MaestroRequest request){
+    private void validarDatosUnicos(MaestroRequest request){
         log.info("Validando email y teléfono únicos");
 
         if (maestroRepository.existsByEmailIgnoreCase(request.email().trim()))
@@ -97,7 +97,7 @@ public class MaestroServiceImpl implements MaestroService{
             throw new ConflictoException("El teléfono: " + request.telefono() + " ya está registrado");
     }
 
-    private void validarCambiosEmailYTelefonoUnico(MaestroRequest request, Long id){
+    private void validarCambiosDatosUnicos(MaestroRequest request, Long id){
         log.info("Validando cambios en el email y teléfono únicos");
 
         if (maestroRepository.existsByEmailIgnoreCaseAndIdNot(request.email(), id))

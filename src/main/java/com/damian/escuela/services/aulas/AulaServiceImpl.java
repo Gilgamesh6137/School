@@ -41,7 +41,7 @@ public class AulaServiceImpl implements AulaService{
 
     @Override
     public AulaResponse registrar(AulaRequest request) {
-        validarNombreUnico(request.nombre());
+        validarDatosUnicos(request);
         log.info("Registrando una nueva aula");
 
         Aula aula = aulaMapper.requestAEntidad(request);
@@ -53,7 +53,7 @@ public class AulaServiceImpl implements AulaService{
 
     @Override
     public AulaResponse actualizar(AulaRequest request, Long id) {
-        validarCambiosNombreUnico(request.nombre(), id);
+        validarCambiosDatosUnicos(request, id);
         Aula aula = obtenerAula(id);
         log.info("Actualizando aula con ID {}", id);
 
@@ -81,15 +81,15 @@ public class AulaServiceImpl implements AulaService{
         return ServiceUtils.obtenerEntidadException(aulaRepository, id, Aula.class);
     }
 
-    private void validarNombreUnico(String nombre){
-        if (aulaRepository.existsByNombre(nombre)){
-            throw new ConflictoException("El aula con el nombre: " + nombre + " ya existe");
+    private void validarDatosUnicos(AulaRequest request){
+        if (aulaRepository.existsByNombre(request.nombre())){
+            throw new ConflictoException("El aula con el nombre: " + request.nombre() + " ya existe");
         }
     }
 
-    private void validarCambiosNombreUnico(String nombre, Long id){
-        if (aulaRepository.existsByNombreAndIdNot(nombre, id)){
-            throw new ConflictoException("El aula con el nombre: " + nombre + " ya existe");
+    private void validarCambiosDatosUnicos(AulaRequest request, Long id){
+        if (aulaRepository.existsByNombreAndIdNot(request.nombre(), id)){
+            throw new ConflictoException("El aula con el nombre: " + request.nombre() + " ya existe");
         }
     }
 }

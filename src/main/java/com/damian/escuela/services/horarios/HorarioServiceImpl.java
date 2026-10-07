@@ -9,6 +9,7 @@ import com.damian.escuela.exceptions.EntidadRelacionadaException;
 import com.damian.escuela.mapper.HorarioMapper;
 import com.damian.escuela.repositories.GrupoRepository;
 import com.damian.escuela.repositories.HorarioRepository;
+import com.damian.escuela.utils.DateCustomUtils;
 import com.damian.escuela.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class HorarioServiceImpl implements HorarioService{
         Grupo grupo = obtenerGrupo(request.idGrupo());
         DiaSemama dia = DiaSemama.obtenerDiaSemanaPorDescripcion(request.dia());
 
+        validarHoraInicioMenorHoraFin(request);
         validarHorario(grupo, dia, request.horaInicio(), request.horaFin(), -1L);
         log.info("Registrando un nuevo horario");
 
@@ -62,6 +64,7 @@ public class HorarioServiceImpl implements HorarioService{
         if (horario.cambioEnDatos(request.dia(), request.horaInicio(), request.horaFin(), grupo)) {
             log.info("Actualizando horario con ID {}", id);
 
+            validarHoraInicioMenorHoraFin(request);
             validarHorario(grupo, dia, request.horaInicio(), request.horaFin(), id);
             horario.actualizar(request.dia(), request.horaInicio(), request.horaFin(), grupo);
             horarioRepository.saveAndFlush(horario);
@@ -92,5 +95,9 @@ public class HorarioServiceImpl implements HorarioService{
     private void validarHorario(Grupo grupo, DiaSemama dia, String horaInicio, String horaFin, Long idExcluir){
         if (horarioRepository.existeTraslape(dia, horaInicio, horaFin, grupo.getPeriodo(), grupo.getId(), grupo.getAula().getId(), idExcluir))
             throw new EntidadRelacionadaException("El horario se traslapa con otro del mismo grupo o aula");
+    }
+
+    private void validarHoraInicioMenorHoraFin(HorarioRequest request){
+        DateCustomUtils.compararHoras(request.horaInicio(), request.horaFin(), "La hora de incio debe ser menor que la hora fin");
     }
 }
