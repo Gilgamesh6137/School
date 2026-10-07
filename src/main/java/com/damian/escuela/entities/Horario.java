@@ -60,7 +60,7 @@ public class Horario {
     }
 
     public String obtenerHorarioCompleto() {
-        return String.format("%s %s - %s", diaSemama, horaInicio, horaFin);
+        return String.format("%s %s - %s", diaSemama.getDescripcion(), horaInicio, horaFin);
     }
 
     public void asignarGrupo(Grupo grupo) {

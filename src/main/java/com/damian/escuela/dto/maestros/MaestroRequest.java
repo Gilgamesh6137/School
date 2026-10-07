@@ -34,5 +34,4 @@ public record MaestroRequest(
         @NotBlank(message = "El teléfono es requerido")
         @Pattern(regexp = "^[0-9]{10}", message = "El teléfono debe tener exactamente 10 caracteres")
         String telefono
-) {
-}
+) {}

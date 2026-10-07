@@ -12,6 +12,6 @@ public record HorarioResponse(
         @Schema(description = "Datos del grupo")
         DatosGrupo grupo,
 
-        @Schema(description = "Horario del grupo", example = "Lunes 8:00 a 18:00")
+        @Schema(description = "Horario del grupo", example = "Lunes 8:00 - 18:00")
         String horario
 ) {}

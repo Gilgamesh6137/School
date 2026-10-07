@@ -46,12 +46,9 @@ public class Calificacion {
         this.inscripcion = inscripcion;
     }
 
-
     public void actualizar (BigDecimal calificacion){
         validarDatos(calificacion);
-
         this.calificacion = calificacion;
-        this.fechaRegistro = LocalDate.now();
     }
 
     public static Calificacion crear(BigDecimal calificacion){

@@ -23,7 +23,7 @@ public class Curso {
     @Column(name = "NOMBRE", length = 100, nullable = false, unique = true)
     private String nombre;
 
-    @Column(name = "DESCRIPCION", length = 200, nullable = false)
+    @Column(name = "DESCRIPCION", length = 200)
     private String descripcion;
 
     @Column(name = "CREDITOS", nullable = false)
