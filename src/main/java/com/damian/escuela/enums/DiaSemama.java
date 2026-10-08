@@ -27,6 +27,6 @@ public enum DiaSemama {
                 return diaSemama;
         }
 
-        throw new RecursoNoEncontradoException("No exixte un dia de la semana con la descripción: " + descripcion);
+        throw new RecursoNoEncontradoException("No existe un dia de la semana con la descripción: " + descripcion);
     }
 }

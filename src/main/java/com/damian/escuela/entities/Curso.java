@@ -29,31 +29,28 @@ public class Curso {
     @Column(name = "CREDITOS", nullable = false)
     private Integer creditos;
 
-    private static void validarDatos(String nombre, String descripcion, Integer creditos){
-        StringCustomUtils.validarTamanio(nombre, 1, 100,
-                "El nombre es requerido y debe tener entre 1 y 100 caracteres");
-
-        StringCustomUtils.validarTamanio(descripcion, 1, 200,
-                "La descripción es requerida y debe tener entre 1 y 200 caracteres");
+    private static void validarDatos(String nombre, Integer creditos){
+        StringCustomUtils.validarTamanio(nombre, 5, 100,
+                "El nombre es requerido y debe tener entre 5 y 100 caracteres");
 
         ValoresNumericosUtils.validarEnteroPositivo(creditos,
-                "Los creditos son requeridos y deden ser positivos");
+                "El crédito es requerido y debe ser positivo");
     }
 
     public void actualizar(String nombre, String descripcion, Integer creditos){
-        validarDatos(nombre, descripcion, creditos);
+        validarDatos(nombre, creditos);
 
         this.nombre = nombre.trim();
-        this.descripcion = descripcion.trim();
+        this.descripcion = descripcion == null ? null : descripcion.trim();
         this.creditos = creditos;
     }
 
     public static Curso crear(String nombre, String descripcion, Integer creditos){
-        validarDatos(nombre, descripcion, creditos);
+        validarDatos(nombre, creditos);
 
         return Curso.builder()
                 .nombre(nombre.trim())
-                .descripcion(descripcion.trim())
+                .descripcion(descripcion == null ? null : descripcion.trim())
                 .creditos(creditos)
                 .build();
     }

@@ -2,7 +2,6 @@ package com.damian.escuela.utils;
 
 import com.damian.escuela.exceptions.DatoInvalidoException;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +13,7 @@ public class DateCustomUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
         try {
-            LocalDateTime.parse(hora, formatter);
+            LocalTime.parse(hora, formatter);
         } catch (DateTimeParseException e) {
             throw new DatoInvalidoException(mensaje);
         }
@@ -31,11 +30,16 @@ public class DateCustomUtils {
     }
 
     public static void compararHoras(String horaInicio, String horaFin, String mensaje) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime timeInicio = LocalTime.parse(horaInicio, formatter);
-        LocalTime timeFin = LocalTime.parse(horaFin, formatter);
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime timeInicio = LocalTime.parse(horaInicio, formatter);
+            LocalTime timeFin = LocalTime.parse(horaFin, formatter);
 
-        if (!timeInicio.isBefore(timeFin))
-            throw new DatoInvalidoException(mensaje);
+            if (!timeInicio.isBefore(timeFin))
+                throw new DatoInvalidoException(mensaje);
+
+        } catch (Exception e) {
+            throw new DatoInvalidoException("La hora de inicio debe ser menor a la hora de fin");
+        }
     }
 }

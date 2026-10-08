@@ -1,8 +1,6 @@
 package com.damian.escuela.controller;
 
 import com.damian.escuela.docs.ProblemaDoc;
-import com.damian.escuela.dto.maestros.MaestroRequest;
-import com.damian.escuela.dto.maestros.MaestroResponse;
 import com.damian.escuela.services.CrudService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -35,6 +35,9 @@ public class Calificacion {
     private LocalDate fechaRegistro = LocalDate.now();
 
     private static void validarDatos(BigDecimal calificacion){
+        if (calificacion == null)
+            throw new DatoInvalidoException("La calificación es requerida");
+
         if (calificacion.compareTo(BigDecimal.TEN) > 0 || calificacion.compareTo(BigDecimal.ZERO) < 0)
             throw new DatoInvalidoException("La calificación debe ser positiva y estar entre 0 y 10");
     }

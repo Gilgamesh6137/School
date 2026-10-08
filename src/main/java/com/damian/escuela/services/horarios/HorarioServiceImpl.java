@@ -98,6 +98,6 @@ public class HorarioServiceImpl implements HorarioService{
     }
 
     private void validarHoraInicioMenorHoraFin(HorarioRequest request){
-        DateCustomUtils.compararHoras(request.horaInicio(), request.horaFin(), "La hora de incio debe ser menor que la hora fin");
+        DateCustomUtils.compararHoras(request.horaInicio(), request.horaFin(), "La hora de inicio debe ser menor que la hora fin");
     }
 }
