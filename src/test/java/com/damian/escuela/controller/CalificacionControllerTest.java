@@ -1,4 +1,296 @@
 package com.damian.escuela.controller;
 
+import com.damian.escuela.dto.calificacion.CalificacionRequest;
+import com.damian.escuela.dto.calificacion.CalificacionResponse;
+import com.damian.escuela.dto.datos.DatosAlumno;
+import com.damian.escuela.dto.datos.DatosGrupo;
+import com.damian.escuela.dto.datos.DatosInscripcion;
+import com.damian.escuela.exceptions.RecursoNoEncontradoException;
+import com.damian.escuela.services.calificacion.CalificacionService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(CalificacionController.class)
 public class CalificacionControllerTest {
+
+    private static final String URL = "/api/calificacion";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private CalificacionService calificacionService;
+
+    private CalificacionRequest requestValido() {
+        return new CalificacionRequest(1L, new BigDecimal("9.0"));
+    }
+
+    private CalificacionResponse responseValida() {
+        return new CalificacionResponse(
+                1L,
+                new DatosInscripcion(
+                        new DatosAlumno("Carlos González Ramírez", "A2026001", "carlos.gonzalez@alumnos.com", "10/01/2026"),
+                        new DatosGrupo("Matemáticas I", "Laura Martínez Martínez", "Aula 101", "2026-01"),
+                        "15/01/2026"
+                ),
+                new BigDecimal("9.0"),
+                "11/02/2026"
+        );
+    }
+
+    // ---------- GET /api/calificaciones ----------
+
+    @Test
+    void listar_debeRetornar200ConLaLista() throws Exception {
+        when(calificacionService.listar()).thenReturn(List.of(responseValida()));
+
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].inscripcion.alumno.nombre").value("Carlos González Ramírez"))
+                .andExpect(jsonPath("$[0].inscripcion.alumno.matricula").value("A2026001"))
+                .andExpect(jsonPath("$[0].inscripcion.grupo.curso").value("Matemáticas I"))
+                .andExpect(jsonPath("$[0].inscripcion.grupo.periodo").value("2026-01"))
+                .andExpect(jsonPath("$[0].inscripcion.fechaInscripcion").value("15/01/2026"))
+                .andExpect(jsonPath("$[0].calificacion").value(9.0))
+                .andExpect(jsonPath("$[0].fechaRegistro").value("11/02/2026"));
+    }
+
+    @Test
+    void listar_debeRetornar200ConListaVacia_cuandoNoHayCalificaciones() throws Exception {
+        when(calificacionService.listar()).thenReturn(List.of());
+
+        mockMvc.perform(get(URL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    // ---------- GET /api/calificaciones/{id} ----------
+
+    @Test
+    void obtenerPorId_debeRetornar200_cuandoLaCalificacionExiste() throws Exception {
+        when(calificacionService.obtenerPorId(1L)).thenReturn(responseValida());
+
+        mockMvc.perform(get(URL + "/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.inscripcion.alumno.nombre").value("Carlos González Ramírez"))
+                .andExpect(jsonPath("$.inscripcion.alumno.matricula").value("A2026001"))
+                .andExpect(jsonPath("$.inscripcion.grupo.curso").value("Matemáticas I"))
+                .andExpect(jsonPath("$.inscripcion.grupo.periodo").value("2026-01"))
+                .andExpect(jsonPath("$.inscripcion.fechaInscripcion").value("15/01/2026"))
+                .andExpect(jsonPath("$.calificacion").value(9.0))
+                .andExpect(jsonPath("$.fechaRegistro").value("11/02/2026"));
+    }
+
+    @Test
+    void obtenerPorId_debeRetornar404_cuandoLaCalificacionNoExiste() throws Exception {
+        when(calificacionService.obtenerPorId(99L))
+                .thenThrow(new RecursoNoEncontradoException("Calificacion no encontrada con id: 99"));
+
+        mockMvc.perform(get(URL + "/{id}", 99L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Calificacion no encontrada con id: 99"));
+    }
+
+    // ---------- POST /api/calificaciones ----------
+
+    @Test
+    void registrar_debeRetornar201_cuandoDatosSonValidos() throws Exception {
+        when(calificacionService.registrar(any(CalificacionRequest.class))).thenReturn(responseValida());
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestValido())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.inscripcion.alumno.nombre").value("Carlos González Ramírez"))
+                .andExpect(jsonPath("$.inscripcion.alumno.matricula").value("A2026001"))
+                .andExpect(jsonPath("$.inscripcion.grupo.curso").value("Matemáticas I"))
+                .andExpect(jsonPath("$.inscripcion.grupo.periodo").value("2026-01"))
+                .andExpect(jsonPath("$.inscripcion.fechaInscripcion").value("15/01/2026"))
+                .andExpect(jsonPath("$.calificacion").value(9.0))
+                .andExpect(jsonPath("$.fechaRegistro").value("11/02/2026"));
+
+        verify(calificacionService).registrar(any(CalificacionRequest.class));
+    }
+
+    @Test
+    void registrar_debeRetornar404_cuandoLaInscripcionNoExiste() throws Exception {
+        when(calificacionService.registrar(any(CalificacionRequest.class)))
+                .thenThrow(new RecursoNoEncontradoException("Inscripcion no encontrada con id: 99"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestValido())))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Inscripcion no encontrada con id: 99"));
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoElIdDeInscripcionEsNulo() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(null, new BigDecimal("9.0"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoElIdDeInscripcionEsCero() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(0L, new BigDecimal("9.0"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoElIdDeInscripcionEsNegativo() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(-1L, new BigDecimal("9.0"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoLaCalificacionEsNula() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(1L, null);
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoLaCalificacionEsCero() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(1L, BigDecimal.ZERO);
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoLaCalificacionEsNegativa() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(1L, new BigDecimal("-5"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    @Test
+    void registrar_debeRetornar400_cuandoNoHayBody() throws Exception {
+        mockMvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).registrar(any());
+    }
+
+    // ---------- PUT /api/calificaciones/{id} ----------
+
+    @Test
+    void actualizar_debeRetornar200_cuandoDatosSonValidos() throws Exception {
+        when(calificacionService.actualizar(any(CalificacionRequest.class), eq(1L))).thenReturn(responseValida());
+
+        mockMvc.perform(put(URL + "/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestValido())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.inscripcion.alumno.nombre").value("Carlos González Ramírez"))
+                .andExpect(jsonPath("$.inscripcion.alumno.matricula").value("A2026001"))
+                .andExpect(jsonPath("$.inscripcion.grupo.curso").value("Matemáticas I"))
+                .andExpect(jsonPath("$.inscripcion.grupo.periodo").value("2026-01"))
+                .andExpect(jsonPath("$.inscripcion.fechaInscripcion").value("15/01/2026"))
+                .andExpect(jsonPath("$.calificacion").value(9.0))
+                .andExpect(jsonPath("$.fechaRegistro").value("11/02/2026"));
+    }
+
+    @Test
+    void actualizar_debeRetornar404_cuandoLaCalificacionNoExiste() throws Exception {
+        when(calificacionService.actualizar(any(CalificacionRequest.class), eq(99L)))
+                .thenThrow(new RecursoNoEncontradoException("Calificacion no encontrada con id: 99"));
+
+        mockMvc.perform(put(URL + "/{id}", 99L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestValido())))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Calificacion no encontrada con id: 99"));
+    }
+
+    @Test
+    void actualizar_debeRetornar400_cuandoElBodyEsInvalido() throws Exception {
+        CalificacionRequest request = new CalificacionRequest(1L, null);
+
+        mockMvc.perform(put(URL + "/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(calificacionService, never()).actualizar(any(), any());
+    }
+
+    // ---------- DELETE /api/calificaciones/{id} ----------
+
+    @Test
+    void eliminar_debeRetornar204_cuandoLaCalificacionExiste() throws Exception {
+        mockMvc.perform(delete(URL + "/{id}", 1L))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(calificacionService).eliminar(1L);
+    }
+
+    @Test
+    void eliminar_debeRetornar404_cuandoLaCalificacionNoExiste() throws Exception {
+        doThrow(new RecursoNoEncontradoException("Calificacion no encontrada con id: 99"))
+                .when(calificacionService).eliminar(99L);
+
+        mockMvc.perform(delete(URL + "/{id}", 99L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Calificacion no encontrada con id: 99"));
+    }
 }

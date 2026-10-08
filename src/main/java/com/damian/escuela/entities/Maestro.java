@@ -51,11 +51,11 @@ public class Maestro {
         StringCustomUtils.validarTamanio(apellidoMaterno, 1, 50,
                 "El apellido materno es requerido y debe tener entre 1 y 50 caracteres");
 
-        StringCustomUtils.validarTamanio(email, 8, 100,
-                "El email es requerido y debe tener entre 8 y 100 caracteres");
+        StringCustomUtils.validarTamanio(email, 5, 100,
+                "El email es requerido y debe tener entre 5 y 100 caracteres");
 
         StringCustomUtils.validarTamanio(telefono, 10, 10,
-                "El telefono es requerido y debe tener exactamente 10 caracteres");
+                "El teléfono es requerido y debe tener exactamente 10 caracteres");
     }
 
     public void actualizar(String nombre, String apellidoPaterno, String apellidoMaterno, String email, String telefono){

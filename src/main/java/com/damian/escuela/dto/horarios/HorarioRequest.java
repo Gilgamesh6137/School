@@ -20,14 +20,14 @@ public record HorarioRequest(
         @Schema(description = "Hora de inicio", example = "08:00")
         @NotBlank(message = "La hora de inicio es requerida")
         @NotNull(message = "La hora de inicio es requerida")
-        @Size(min = 5, max = 5, message = "La hora de inicio debe tener el formato HH:mm")
-        @Pattern(regexp = "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora debe tener el formato HH:mm válido")
+        @Size(min = 5, max = 5, message = "La hora de inicio debe tener exactamente 5 caracteres")
+        @Pattern(regexp = "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de inicio debe tener un formato HH:mm")
         String horaInicio,
 
         @Schema(description = "Hora de fin", example = "18:00")
         @NotBlank(message = "La hora de fin es requerida")
         @NotNull(message = "La hora de fin es requerida")
-        @Size(min = 5, max = 5, message = "La hora de fin debe tener el formato HH:mm")
-        @Pattern(regexp = "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora debe tener el formato HH:mm válido")
+        @Size(min = 5, max = 5, message = "La hora de fin debe tener exactamente 5 caracteres")
+        @Pattern(regexp = "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", message = "La hora de fin debe tener el formato HH:mm")
         String horaFin
 ) {}

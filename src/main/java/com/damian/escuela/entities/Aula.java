@@ -38,7 +38,7 @@ public class Aula {
                 "El nombre es requerido y debe tener entre 5 y 30 caracteres");
 
         ValoresNumericosUtils.validarEnteroPositivo(capacidad,
-                "La capacidad es requerida y dede ser positiva");
+                "La capacidad es requerida y debe ser positiva");
     }
 
     public void actualizar(String nombre, Integer capacidad){
